@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
@@ -27,20 +28,23 @@ public class ExportReportService {
         log.info("Start export");
         SrcFolderInfo folderInfo = folderScanService.scan();
         ReportData process = folderProcessingService.process(folderInfo);
-        createAndExportReport(process);
+
+        reportCreatingService.create(createAndExportReport(process));
 
     }
 
-    private void createAndExportReport(ReportData data){
+    private File createAndExportReport(ReportData data){
         log.info("Export file {} to {}", data, desPath);
 
         try (FileWriter fileWriter = new FileWriter(desPath+"/result.txt")){
 
             fileWriter.write("Max length: "+data.getMaxLengthFile()+"\n");
             fileWriter.write("Folder's size: "+data.getFolderSize());
+            return new File(desPath+"/result.txt");
 
         } catch (IOException e) {
             e.printStackTrace();
+            return null;
         }
     }
 }
